@@ -5,12 +5,25 @@ name:  Test, build and deploy
 on: [push,pull_request]
 #A workflow run is made up of one or more jobs. Jobs run in parallel by default.
 jobs:
+  build_dart:
+
+    runs-on: ubuntu-latest
+
+    container:
+      image:  google/dart:latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: pub get
+    - name: Run tests
+      run: pub run test
   build_deploy:
     #if conditional to prevent a job from running
     if: github.event_name != 'pull_request'
     runs-on: macos-latest
     #Identifies any jobs that must complete successfully before this job will run.
-    needs: [drive_ios,drive_android,test]
+    needs: [build_dart]
     name: Build  apk  and web
     steps:
       - uses: actions/checkout@v1
